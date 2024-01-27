@@ -81,7 +81,6 @@ def import_players_json() -> dict:
 
     with open(settings['data']['log_filepath'], 'r', encoding='utf-8') as f:
         player_log = json.load(f)
-        print('-----import player log-----')
         pprint(player_log)
     
     return player_log
@@ -103,7 +102,6 @@ def export_players_json(player_log: dict):
         }): プレイヤー情報
     """
     with open(settings['data']['log_filepath'], 'w', encoding='utf-8') as f:
-        print('-----export player log-----')
         json.dump(player_log, f, ensure_ascii=False)
 
 def fetch_players(rcon: MCRcon) -> dict:
@@ -125,7 +123,6 @@ def fetch_players(rcon: MCRcon) -> dict:
             }
         }): 接続中のユーザ情報
     """
-    print('-----fetch players-----')
     players = {}
     for _ in range(3):
         try:
@@ -183,7 +180,6 @@ def extract_new_players(all_players: dict, login_players: dict):
         all_players (dict): 過去に取得済みのプレイヤ情報
         login_players (dict): 現在ログイン中のプレイヤ情報
     """
-    print('-----extract new players-----')
 
     new_players = {}
     for steamid, value in login_players.items():
@@ -219,7 +215,6 @@ def merge_login_players(prev_players: dict, now_players: dict) -> dict:
     Returns:
         dict: { "steamid": datetime 最初にログインした時間 }
     """
-    print('-----merge login players-----')
     now = dt.now()
     merged_login_players = {}
     for steamid in now_players.keys():
@@ -240,7 +235,6 @@ def kick_players(rcon: MCRcon, merged_login_players: dict):
             steamid(string): first login time(datetime)
         }
     """
-    print('-----kick players-----')
     now = dt.now()
     for steamid, first_login_time in merged_login_players.items():
         is_over_login_time_length = (now - first_login_time).total_seconds() >= settings['time']['auto_kick_player_interval_sec']
@@ -262,6 +256,7 @@ if __name__ == "__main__":
     prev_fetch_time = dt.now()
 
     with MCRcon(settings['rcon']['address'], settings['rcon']['password'], settings['rcon']['port']) as rcon:
+        rcon.tlsmode
         print('-----rcon connect success-----')
 
         all_players = import_players_json()
