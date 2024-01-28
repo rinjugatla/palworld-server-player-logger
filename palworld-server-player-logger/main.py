@@ -1,5 +1,6 @@
 from mcrcon import MCRcon
 from pprint import pprint
+from dotenv import load_dotenv
 from datetime import datetime as dt
 
 import os, json, csv, io, argparse, time
@@ -39,16 +40,20 @@ settings = {
 def init_setting():
     """引数から設定を初期化
     """
+
+    # .env読み込み
+    load_dotenv()
+
     parser = argparse.ArgumentParser(description="Outputs log of Palworld Server's connectee information")
-    parser.add_argument('--address', help='Server address', default='127.0.0.1')
-    parser.add_argument('--port', help='RCON port', default=25575)
-    parser.add_argument('--password', help='Admin password', default='')
+    parser.add_argument('--address', help='Server address', default=os.getenv('SERVER_ADDRESS', '127.0.0.1'))
+    parser.add_argument('--port', help='RCON port', default=os.getenv('RCON_PORT', 25575))
+    parser.add_argument('--password', help='Admin password', default=os.getenv('RCON_PASSWORD',''))
 
-    parser.add_argument('--fetch_player_interval_sec', help='RCON fetch player interval(sec)', default=30)
-    parser.add_argument('--use_auto_player_kick', help='Use auto kick', default=False)
-    parser.add_argument('--auto_kick_player_interval_sec', help='Auto kick interval(sec)', default=3*60)
+    parser.add_argument('--fetch_player_interval_sec', help='RCON fetch player interval(sec)', default=os.getenv('FETCH_PLAYER_INTERVAL_SEC',30))
+    parser.add_argument('--use_auto_player_kick', help='Use auto kick', default=os.getenv('USE_AUTO_KICK_PLAYER',False))
+    parser.add_argument('--auto_kick_player_interval_sec', help='Auto kick interval(sec)', default=os.getenv('AUTO_KICK_PLAYER_INTERVAL_SEC',3 * 60))
 
-    parser.add_argument('--log_filepath', help='Player log filepath', default='player_log.json')
+    parser.add_argument('--log_filepath', help='Player log filepath', default=os.getenv('LOG_FILEPATH','player_log.json'))
 
     args = parser.parse_args()
     settings['rcon']['address'] = args.address
@@ -56,7 +61,7 @@ def init_setting():
     settings['rcon']['password'] = args.password
 
     settings['time']['fetch_player_interval_sec'] = int(args.fetch_player_interval_sec)
-    settings['time']['use_auto_player_kick'] = bool(args.use_auto_player_kick)
+    settings['time']['use_auto_player_kick'] = args.use_auto_player_kick == 'True'
     settings['time']['auto_kick_player_interval_sec'] = int(args.auto_kick_player_interval_sec)
 
     settings['data']['log_filepath'] = args.log_filepath
